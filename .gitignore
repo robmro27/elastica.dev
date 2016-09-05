@@ -50,3 +50,4 @@
 /.vagrant
 .vagrant
 var
+vendor
