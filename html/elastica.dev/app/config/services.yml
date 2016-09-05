@@ -1,0 +1,10 @@
+services:
+    
+    app.doctrine_helper:
+        class: AppBundle\DependencyInjection\DoctrineHelper
+        arguments: ['@service_container']
+        
+    pagerfanta.view.default:
+        class: Pagerfanta\View\DefaultView
+        public: false
+        tags: [{ name: pagerfanta.view, alias: default }]

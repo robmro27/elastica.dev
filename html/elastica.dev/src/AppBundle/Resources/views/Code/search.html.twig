@@ -1,0 +1,19 @@
+{% if results is not empty %}
+<h2>Top hits (search in city and street)</h2>
+<table class="table">
+    <tr>
+        <th>City</th>
+        <th>Postal</th>
+        <th><strong>Street</strong></th>
+        <th>Province</th>
+    </tr>
+{% for result in results %}
+    <tr>
+        <td>{{ result.cityName }}</td>
+        <td>{{ result.code }}</td>
+        <td><strong>{{ result.streetName }}</strong></td>
+        <td>{{ result.provinceName }}</td>
+    </tr>
+{% endfor %}
+</table>
+{% endif %}       

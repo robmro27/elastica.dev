@@ -1,0 +1,64 @@
+fos_elastica:
+    clients:
+        default: { host: %elastic_host%, port: %elastic_port% }
+    indexes:
+        postal_codes:
+            client: default
+            settings:
+                index:
+                  analysis:
+                    analyzer:
+                      custom_analyzer :
+                        type     :    custom
+                        tokenizer:    nGram
+                        filter   :    [stopwords, asciifolding ,lowercase, snowball, elision, worddelimiter]
+                      custom_search_analyzer :
+                        type     :    custom
+                        tokenizer:    standard
+                        filter   :    [stopwords, asciifolding ,lowercase, snowball, elision, worddelimiter]
+                    tokenizer:
+                      nGram:
+                        type:     nGram
+                        min_gram: 2
+                        max_gram: 20
+                    filter:
+                      snowball:
+                        type:     snowball
+                        language: English
+                      stopwords:
+                        type:      stop
+                        ignore_case : true
+                      worddelimiter :
+                        type:      word_delimiter
+            types:
+                code:
+                    mappings:
+                        id:
+                            type: integer
+                        code : 
+                            index_analyzer : custom_analyzer
+                            search_analyzer : custom_search_analyzer
+                        streetName : 
+                            index_analyzer : custom_analyzer
+                            search_analyzer : custom_search_analyzer
+                        rawStreetName:
+                            type: string
+                            index: not_analyzed
+                        cityName : 
+                            index_analyzer : custom_analyzer
+                            search_analyzer : custom_search_analyzer
+                        rawCityName:
+                            type: string
+                            index: not_analyzed
+                        provinceName : 
+                            index_analyzer : custom_analyzer
+                            search_analyzer : custom_search_analyzer
+                        regionName : 
+                            index_analyzer : custom_analyzer
+                            search_analyzer : custom_search_analyzer
+                    persistence:
+                        driver: orm
+                        model: AppBundle\Entity\Code
+                        finder: ~
+                        provider: ~
+                        listener: ~

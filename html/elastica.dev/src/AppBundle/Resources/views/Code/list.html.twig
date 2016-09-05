@@ -1,0 +1,164 @@
+{% extends "::base.html.twig" %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+    <script>
+        var typingTimer;
+        var doneTypingInterval = 700;
+        function delayExecute( phrase ) {
+            clearTimeout(typingTimer);
+                typingTimer = setTimeout(
+                function(){
+                    $.ajax({
+                        type: "GET",
+                        url: Routing.generate('search', { code: phrase }),
+                        data: {},
+                        success: function(data) {
+                            $('#results').html(data);
+                        },
+                    });
+                },
+                doneTypingInterval
+            );
+            return true;
+        }
+        
+        $(document).ready(function() {
+            $('#code_search_type_code').keyup(function() {
+                delayExecute($(this).val());
+            });
+        });
+    </script>
+{% endblock %}    
+
+{% block body %}
+    
+    
+    
+    <div class="container">
+        
+        <h2>Elastic search - Poland Postal Codes</h2>
+        <div class="row">
+            <div class="col-md-5">
+                {{ form(form) }}
+            </div>
+        </div>
+        
+            
+        <div id="results">    
+            
+                {% if results is not empty %}
+                <h2>Top hits (search in city and street)</h2>
+                <table class="table">
+                    <tr>
+                        <th>City</th>
+                        <th>Postal</th>
+                        <th><strong>Street</strong></th>
+                        <th>Province</th>
+                    </tr>
+                {% for result in results %}
+                    <tr>
+                        <td>{{ result.cityName }}</td>
+                        <td>{{ result.code }}</td>
+                        <td><strong>{{ result.streetName }}</strong></td>
+                        <td>{{ result.provinceName }}</td>
+                    </tr>
+                {% endfor %}
+                {% if pager is not null and pager.haveToPaginate %}
+                    <tr>
+                        <td colspan="4">
+                            <div class="pager">
+                                {{ pagerfanta(pager, 'twitter_bootstrap3', {
+                                    'routeName': 'code_list',
+                                    'routeParams': app.request.query.all,
+                                    'prev_message': 'Previous',
+                                    'next_message': 'Next'
+                                }) }}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </table>
+                {% endif %}       
+            
+            
+                {% if cityBuckets is not empty %}
+                <h2>Top hits aggregation cities (best hit for each city)</h2>
+                <table class="table">
+                    <tr>
+                        <th><strong>City</strong></th>
+                        <th>Postal</th>
+                        <th>Street</th>
+                        <th>Province</th>
+                    </tr>
+                {% for bucket in cityBuckets %}
+                    <tr>
+                        <td><strong>{{ bucket.city_hits.hits.hits[0]._source.cityName }}</strong></td>
+                        <td>{{ bucket.city_hits.hits.hits[0]._source.code }}</td>
+                        <td>{{ bucket.city_hits.hits.hits[0]._source.streetName }}</td>
+                        <td>{{ bucket.city_hits.hits.hits[0]._source.provinceName }}</td>
+                    </tr>
+                {% endfor %}
+                {% if cityPager is not null and cityPager.haveToPaginate %}
+                    <tr>
+                        <td colspan="4">
+                            <div class="pager">
+                                {{ pagerfanta(cityPager, 'twitter_bootstrap3', {
+                                    'routeName': 'code_list',
+                                    'routeParams': app.request.query.all,
+                                    'prev_message': 'Previous',
+                                    'next_message': 'Next'
+                                }) }}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </table>
+                {% endif %}    
+        
+        
+        
+        
+                {% if streetBuckets is not empty %}
+                <h2>Top hits aggregation streets (best hit for each street)</h2>
+                <table class="table">
+                    <tr>
+                        <th>City</th>
+                        <th>Postal</th>
+                        <th><strong>Street</strong></th>
+                        <th>Province</th>
+                    </tr>
+                {% for bucket in streetBuckets %}
+                    <tr>
+                        <td>{{ bucket.street_hits.hits.hits[0]._source.cityName }}</td>
+                        <td>{{ bucket.street_hits.hits.hits[0]._source.code }}</td>
+                        <td><strong>{{ bucket.street_hits.hits.hits[0]._source.streetName }}</strong></td>
+                        <td>{{ bucket.street_hits.hits.hits[0]._source.provinceName }}</td>
+                    </tr>
+                {% endfor %}
+                {% if streetPager is not null and streetPager.haveToPaginate %}
+                    <tr>
+                        <td colspan="4">
+                            <div class="pager">
+                                {{ pagerfanta(streetPager, 'twitter_bootstrap3', {
+                                    'routeName': 'code_list',
+                                    'routeParams': app.request.query.all,
+                                    'prev_message': 'Previous',
+                                    'next_message': 'Next'
+                                }) }}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </table>
+                {% endif %}    
+                
+                
+        </div>
+        
+    </div>
+    
+{% endblock %}

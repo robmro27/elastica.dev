@@ -1,0 +1,127 @@
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * Street
+ *
+ * @ORM\Table(name="street")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\StreetRepository")
+ */
+class Street
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="type", type="string", length=255)
+     */
+    private $type;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name_1", type="string", length=255)
+     */
+    private $name1;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name_2", type="string", length=255)
+     */
+    private $name2;
+
+
+    /**
+     * Get id
+     *
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set type
+     *
+     * @param string $type
+     *
+     * @return Street
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type
+     *
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set name1
+     *
+     * @param string $name1
+     *
+     * @return Street
+     */
+    public function setName1($name1)
+    {
+        $this->name1 = $name1;
+
+        return $this;
+    }
+
+    /**
+     * Get name1
+     *
+     * @return string
+     */
+    public function getName1()
+    {
+        return $this->name1;
+    }
+
+    /**
+     * Set name2
+     *
+     * @param string $name2
+     *
+     * @return Street
+     */
+    public function setName2($name2)
+    {
+        $this->name2 = $name2;
+
+        return $this;
+    }
+
+    /**
+     * Get name2
+     *
+     * @return string
+     */
+    public function getName2()
+    {
+        return $this->name2;
+    }
+}
