@@ -64,13 +64,6 @@ class CodeRepository extends Repository {
             $query->addAggregation($cityAggregation);
             $query->setSize(0);
             
-            /* simple query
-            $query = new \Elastica\Query\Match();
-            $query->setFieldQuery('code.cityName', $codeSearch->getCode());
-            $query->setFieldFuzziness('code.cityName', 0.7);
-            $query->setFieldMinimumShouldMatch('code.cityName', '100%');
-            */
-            
         } 
         return $query;
     }

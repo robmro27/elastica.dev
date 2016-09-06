@@ -15,30 +15,25 @@ use Pagerfanta\Pagerfanta;
  */
 class CodeController extends Controller {
     
-    
     /**
-     * @Route("/codes/{page}/{pageCity}/{pageStreet}", name="code_list", defaults={"page" = 1, "pageCity" = 1, "pageStreet" = 1},options={"expose"=true})
+     * @Route("/list/{pageCity}/{pageStreet}", 
+     *         name="code_list", 
+     *         defaults={"pageCity" = 1, "pageStreet" = 1},
+     *         options={"expose"=true}
+     *      )
      */
-    public function listAction( Request $request, $page ,$pageCity, $pageStreet )
+    public function listAction( Request $request ,$pageCity, $pageStreet )
     {
         $codeSearch = new CodeSearch();
         $codeSearch->handleRequest($request);
         
         $codeSearchForm = $this->get('form.factory')
-                ->createNamed(
-                        'code_search_type',
-                        \AppBundle\Form\Type\CodeSearchType::class,
-                        $codeSearch,
-                        [
-                          'csrf_protection' => false,
-                          'action' => $this->generateUrl('code_list')  
-                        ]
-                        );
+                ->createNamed('code_search_type',\AppBundle\Form\Type\CodeSearchType::class,
+                               $codeSearch,['csrf_protection' => false,'action' => $this->generateUrl('code_list')]);
         
         $codeSearchForm->handleRequest( $request );
         $codeSearch = $codeSearchForm->getData();
         $elasticaManager = $this->container->get('fos_elastica.manager');
-        
         
         // search and group by cities
         $cityPagerData = [];
@@ -53,7 +48,6 @@ class CodeController extends Controller {
         $cityPager->setMaxPerPage($codeSearch->getPerPage());
         $cityPager->setCurrentPage($pageCity);
         
-        
         // search and group by streets
         $streetPagerData = [];
         $streetQuery = $elasticaManager->getRepository('AppBundle:Code')->getQueryForSearchGroupByStreet($codeSearch);
@@ -67,37 +61,36 @@ class CodeController extends Controller {
         $streetPager->setMaxPerPage($codeSearch->getPerPage());
         $streetPager->setCurrentPage($pageStreet);
         
-        
-        // simple search by two fields
-        $results = $elasticaManager->getRepository('AppBundle:Code')->search($codeSearch);
-        $adapter = new ArrayAdapter($results);
-        $pager = new Pagerfanta($adapter);
-        $pager->setMaxPerPage($codeSearch->getPerPage());
-        $pager->setCurrentPage($page);
-        
-        
-        
-        
         return $this->render('AppBundle:Code:list.html.twig', [
             'cityBuckets' => $cityPager->getCurrentPageResults(),
             'cityPager' => $cityPager,
             'streetBuckets' => $streetPager->getCurrentPageResults(),
             'streetPager' => $streetPager,
-            
-            'results' => $pager->getCurrentPageResults(),
-            'pager' => $pager,
-            
+            'form' => $codeSearchForm->createView()
+        ]);
+    }
+
+    /**
+     * @Route("/listAjax", name="list_ajax",options={"expose"=true})
+     * @return type
+     */
+    public function listAjaxAction()
+    {
+        $codeSearch = new CodeSearch();
+        $codeSearchForm = $this->get('form.factory')
+                ->createNamed('code_search_type',\AppBundle\Form\Type\CodeSearchType::class,
+                               $codeSearch,['csrf_protection' => false,'action' => $this->generateUrl('code_list')]);
+        
+        return $this->render('AppBundle:Code:listAjax.html.twig', [
             'form' => $codeSearchForm->createView()
         ]);
     }
     
-    
-    
     /**
      * 
-     * @Route("/search", name="search",options={"expose"=true})
+     * @Route("/searchAjax", name="list_ajax_search",options={"expose"=true})
      */
-    public function searchAction(Request $request) 
+    public function listAjaxSearchAction(Request $request) 
     {
         $codeSearch = new \AppBundle\Model\CodeSearch();
         $codeSearch->setCode($request->query->get('code'));
@@ -105,10 +98,9 @@ class CodeController extends Controller {
         $elasticaManager = $this->container->get('fos_elastica.manager');
         $results = $elasticaManager->getRepository('AppBundle:Code')->search($codeSearch);
         
-        return $this->render('AppBundle:Code:search.html.twig', [
+        return $this->render('AppBundle:Code:listAjaxSearch.html.twig', [
             'results' => $results
         ]);
-        
     }
     
 }
