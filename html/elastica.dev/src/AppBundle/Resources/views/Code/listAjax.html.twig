@@ -1,0 +1,49 @@
+{% extends "::base.html.twig" %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>
+    <script>
+        var typingTimer;
+        var doneTypingInterval = 700;
+        function delayExecute( phrase ) {
+            clearTimeout(typingTimer);
+                typingTimer = setTimeout(
+                function(){
+                    $.ajax({
+                        type: "GET",
+                        url: Routing.generate('list_ajax_search', { code: phrase }),
+                        data: {},
+                        success: function(data) {
+                            $('#results').html(data);
+                        },
+                    });
+                },
+                doneTypingInterval
+            );
+            return true;
+        }
+        
+        $(document).ready(function() {
+            $('#code_search_type_code').keyup(function() {
+                delayExecute($(this).val());
+            });
+        });
+    </script>
+{% endblock %}  
+
+{% block body %}
+<div class="container">
+        
+    <h2>Elastic search - Poland Postal Codes</h2>
+    <div class="row">
+        <div class="col-md-5">
+            {{ form(form) }}
+        </div>
+    </div>
+            
+    <div id="results"></div>
+    
+</div>
+{% endblock %} 
